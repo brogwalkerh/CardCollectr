@@ -2,6 +2,8 @@
 
 Free Magic: The Gathering collection manager — a Helvault-style app where **every feature is free**. No account, no paywall; your data lives on your device.
 
+**Live app: https://brogwalkerh.github.io/CardCollectr/** — on iPhone, open it in Safari and tap Share → Add to Home Screen to install it.
+
 ## Features
 
 - **Card search** — powered by the [Scryfall API](https://scryfall.com/docs/api), with autocomplete and full Scryfall query syntax
