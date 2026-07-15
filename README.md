@@ -1,32 +1,38 @@
-# React + TypeScript + Vite
+# CardCollectr
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Free Magic: The Gathering collection manager — a Helvault-style app where **every feature is free**. No account, no paywall; your data lives on your device.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Card search** — powered by the [Scryfall API](https://scryfall.com/docs/api), with autocomplete and full Scryfall query syntax
+- **Collection** — quantities, conditions (NM/LP/MP/HP/DMG), foils, filters, sorting, live value totals
+- **Deck builder** — main / sideboard / maybe zones, any format
+- **Wishlist** — priorities and one-click move to collection
+- **Statistics** — color, rarity, and set breakdowns with charts
+- **Import / Export** — CSV compatible with Helvault and other trackers
+- **Scanner** — camera capture + name identification
+- Dark/light theme, responsive mobile layout, installable as a PWA (Add to Home Screen)
 
-## React Compiler
+## Running locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open the printed URL (default `http://localhost:5173`).
+
+## Building
+
+```bash
+npm run build     # static output in dist/
+npm run preview   # serve the build locally
+```
+
+The app is a fully static SPA (hash-based routing), so `dist/` deploys to any static host with zero configuration. Pushes to `main` deploy automatically to GitHub Pages via `.github/workflows/deploy.yml`.
+
+## Tech
+
+Vite + React + TypeScript - TailwindCSS - Dexie.js (IndexedDB) - React Router - Recharts
+
+Card data and prices courtesy of Scryfall. Not affiliated with Wizards of the Coast.
