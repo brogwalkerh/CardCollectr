@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Deck Collector
 
-## Getting Started
+Local web app that bulk-collects public Magic: The Gathering decklists from
+[Archidekt](https://archidekt.com)'s public read API into SQLite. No auth, no
+deployment — runs on your machine only.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd deck-collector
+npm install
+npm run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Quick smoke test of the API client without the UI:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run fetch-deck              # grabs the newest public Commander deck
+npm run fetch-deck -- 1234567   # fetch a specific deck ID
+npm run fetch-deck -- 1234567 --raw   # full raw JSON
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The database lives in `deck-collector/data/deck-collector.db` (gitignored).
+Delete the file to start over.
 
-## Learn More
+## Pages
 
-To learn more about Next.js, take a look at the following resources:
+- **New Job** — build one query (format, deck name, card name, commander, sort,
+  max pages). Shows the exact URL that will be called before you start.
+- **Jobs** — live progress (2s polling), pause / resume / cancel, per-deck
+  errors, and a warning when a query hits the ~1,000-result cap.
+- **Browse** — searchable, paginated table of stored decks; click through for
+  the full list grouped by category.
+- **Export** — current filter to: zip of plain-text decklists (one `.txt` per
+  deck), one CSV of every card row, or the raw Archidekt JSON.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Politeness
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All Archidekt traffic goes through `lib/archidekt.ts` on the server:
 
-## Deploy on Vercel
+- descriptive User-Agent with contact email (edit it in `lib/config.ts`)
+- single-threaded, 1 request/second (`requestDelayMs` in `lib/config.ts`)
+- exponential backoff on 429/5xx/network errors: 2s, 4s, 8s, 16s, 32s, then fail
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Resumability
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Every discovered deck ID is persisted in the `deck_queue` table with a
+pending/done/failed status. Kill the app mid-run, restart, hit Resume on the
+Jobs page — it continues from the pending rows. Decks already in the `decks`
+table are never re-fetched (no HTTP at all) unless the job was started with
+the **Refresh** checkbox. Writes are idempotent upserts keyed on deck ID.
+
+## Live findings about the Archidekt API (verified 2026-08-20)
+
+The API is undocumented; these behaviors were confirmed by inspecting raw
+responses (see comments in `lib/archidekt.ts`):
+
+- The list endpoint (`/api/decks/v3/`) returns **exactly 60 rows per page**
+  and ignores the `pageSize` param.
+- `count` is capped at **1000**; a job whose reported count is ≥ 900 gets a
+  "slice too broad" warning in the Jobs page.
+- The format field is **`deckFormat`** (numeric code — mapping in
+  `lib/formats.ts`), not `format`.
+- The **`commander` param is accepted but ignored** — results come back
+  unfiltered. The UI warns about this.
+- **`cardName` searches usually fail inside Archidekt's own database**
+  ("canceling statement due to statement timeout", returned as HTTP 200 with
+  a `message` field). The runner surfaces that as a job error instead of
+  reporting zero decks.
+- `name` (deck name contains) filters correctly.
+
+## Schema
+
+- `decks` — id (Archidekt ID, PK), name, format, commander, owner,
+  created_at, updated_at, raw_json, fetched_at
+- `cards` — deck_id, card_name, quantity, category, set_code,
+  collector_number, scryfall_id (indexes on card_name and deck_id)
+- `jobs` — id, query_params (JSON), status, pages_done, decks_found,
+  api_count, error, started_at, finished_at
+- `deck_queue` — job_id, deck_id, status (pending/done/failed), error
+
+`api_count` and `deck_queue` are additions to the original schema sketch:
+`api_count` powers the 1000-cap warning, `deck_queue` is the resumable work
+queue.
+
+## Stack
+
+Next.js (App Router) + TypeScript · better-sqlite3 · Tailwind. All Archidekt
+calls happen in Next API routes / server code — the browser never talks to
+Archidekt (CORS would block it anyway).
