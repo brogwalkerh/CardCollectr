@@ -13,6 +13,7 @@ import { ScannerPage } from './pages/ScannerPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ArchidektViewerPage } from './pages/ArchidektViewerPage';
 import { ArchidektDeckPage } from './pages/ArchidektDeckPage';
+import { ArchidektCollectPage } from './pages/ArchidektCollectPage';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/stats" element={<StatsPage />} />
               <Route path="/archidekt" element={<ArchidektViewerPage />} />
+              <Route path="/archidekt/collect" element={<ArchidektCollectPage />} />
               <Route path="/archidekt/:deckId" element={<ArchidektDeckPage />} />
               <Route path="/import-export" element={<ImportExportPage />} />
               <Route path="/scanner" element={<ScannerPage />} />

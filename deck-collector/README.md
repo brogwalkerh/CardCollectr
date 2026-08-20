@@ -83,14 +83,15 @@ responses (see comments in `lib/archidekt.ts`):
 `api_count` powers the 1000-cap warning, `deck_queue` is the resumable work
 queue.
 
-## Viewing collected decks on GitHub Pages
+## Relationship to the deployed CardCollectr app
 
-The deployed CardCollectr site (GitHub Pages) has an **Archidekt** page that
-imports this app's **Raw JSON** export and lets you browse, search, and
-re-export the decks from any browser (data stays in IndexedDB). Collection
-itself must run locally: GitHub Pages cannot host a server, and Archidekt's
-CORS policy (`Access-Control-Allow-Origin: http://localhost:3000`, verified
-2026-08-20) blocks browser-side API calls from any other origin.
+The main CardCollectr app has an **Archidekt** section that can collect
+decks in the browser (via a Vercel/vite-dev proxy, since Archidekt's CORS
+policy — `Access-Control-Allow-Origin: http://localhost:3000`, verified
+2026-08-20 — blocks direct browser calls) and can also import this app's
+**Raw JSON** export. This local app remains the heavy-duty option: SQLite
+storage, jobs that keep running without a browser tab open, and no
+serverless limits.
 
 Related: [pyrchidekt](https://github.com/linkian209/pyrchidekt) is a Python
 wrapper for the same API — handy if you want to script analysis of the data

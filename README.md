@@ -40,12 +40,38 @@ Vite + React + TypeScript - TailwindCSS - Dexie.js (IndexedDB) - React Router - 
 
 Card data and prices courtesy of Scryfall. Not affiliated with Wizards of the Coast.
 
-## Bulk deck collection (local only)
+## Archidekt deck collection
 
-`deck-collector/` contains a separate Next.js app that bulk-collects public
-Archidekt decklists into SQLite — see its [README](deck-collector/README.md).
-It cannot run on GitHub Pages: Pages is static hosting, and Archidekt's API
-sends `Access-Control-Allow-Origin: http://localhost:3000` to every origin,
-so browsers block direct calls from anywhere else. Run the collector locally,
-export **Raw JSON** from its Export page, and import that file into this
-app's **Archidekt** page to browse the decks from the deployed site.
+The **Archidekt** page collects public Archidekt decklists into this
+browser's IndexedDB and lets you browse, search, and export them (zip of
+.txt decklists / CSV / raw JSON). Jobs are throttled to 1 request/second,
+retried with backoff, and resumable — close the tab mid-run and the job
+picks up where it left off, skipping decks already stored.
+
+Archidekt's API hardcodes `Access-Control-Allow-Origin: http://localhost:3000`,
+so the browser can't call it directly. Collection therefore works wherever
+the app has its `/api/archidekt` proxy:
+
+- **Vercel** (recommended) — deploy this repo there; the serverless function
+  in `api/archidekt/[...path].ts` is the proxy. See below.
+- **Local dev** — `npm run dev`; the vite dev server proxies it (see
+  `vite.config.ts`).
+- **GitHub Pages** — static hosting has no proxy, so either paste your
+  Vercel deployment's proxy URL into Archidekt → Collect → Advanced, or
+  import a **Raw JSON** export from the local
+  [deck-collector](deck-collector/) app (a full-featured Next.js + SQLite
+  collector for bigger jobs).
+
+### Deploying to Vercel
+
+1. Go to [vercel.com/new](https://vercel.com/new) and import this GitHub
+   repository. `vercel.json` already sets the build command and output
+   directory; the `api/` function deploys automatically. No other settings
+   are required.
+2. Optional: set the `ARCHIDEKT_CONTACT_EMAIL` environment variable to
+   change the contact address in the proxy's User-Agent header.
+3. Open `https://<your-app>.vercel.app`, go to **Archidekt → Collect decks**,
+   and run jobs straight from the browser.
+
+The proxy only forwards GET requests to the two Archidekt read endpoints the
+collector uses — it is not an open proxy.

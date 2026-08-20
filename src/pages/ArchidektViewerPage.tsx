@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { FolderDown, Upload, Trash2, FileArchive, FileSpreadsheet, FileJson } from 'lucide-react';
+import { FolderDown, Upload, Trash2, FileArchive, FileSpreadsheet, FileJson, DownloadCloud } from 'lucide-react';
 import JSZip from 'jszip';
 import { archDb, type ArchDeck } from '../db/archidektViewer';
 import {
@@ -165,6 +165,13 @@ export function ArchidektViewerPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Archidekt Decks</h2>
         <div className="flex gap-2">
+          <Link
+            to="/archidekt/collect"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium"
+          >
+            <DownloadCloud size={16} />
+            Collect decks
+          </Link>
           <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium cursor-pointer">
             <Upload size={16} />
             {importing ? 'Importing…' : 'Import Raw JSON'}
@@ -192,17 +199,18 @@ export function ArchidektViewerPage() {
       </div>
 
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-3xl">
-        Browse decklists collected with the local deck-collector app. Bulk collection itself can’t run
-        here: GitHub Pages is static hosting and Archidekt’s API only accepts requests from{' '}
-        <code className="text-xs">localhost:3000</code>, so run jobs locally, use its “Raw JSON” export,
-        and import the file above. Data stays in this browser (IndexedDB).
+        Decks live in this browser (IndexedDB). Fill it two ways: run collection jobs right here via{' '}
+        <Link to="/archidekt/collect" className="text-blue-600 dark:text-blue-400 hover:underline">Collect decks</Link>{' '}
+        (works on Vercel and in local dev, where the app has an Archidekt proxy — on the GitHub Pages
+        copy, set the proxy URL under Advanced on that page), or import a “Raw JSON” export from the
+        local deck-collector app above.
       </p>
 
       {(deckCount ?? 0) === 0 ? (
         <EmptyState
           icon={<FolderDown size={48} />}
           title="No Archidekt decks imported"
-          description="Run the deck-collector app locally (deck-collector/ in this repo), export Raw JSON from its Export page, then import the file here."
+          description="Start a collection job with Collect decks, or import a Raw JSON export from the local deck-collector app."
         />
       ) : (
         <>
