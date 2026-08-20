@@ -72,6 +72,7 @@ function migrate(db: Database.Database): void {
         -- pending | running | paused | done | failed | cancelled
       pages_done       INTEGER NOT NULL DEFAULT 0,
       decks_found      INTEGER NOT NULL DEFAULT 0,   -- deck IDs discovered by the list phase
+      api_count        INTEGER,                      -- total the API reported; 1000 = capped
       error            TEXT,
       started_at       TEXT,
       finished_at      TEXT
@@ -126,6 +127,7 @@ export interface JobRow {
   status: "pending" | "running" | "paused" | "done" | "failed" | "cancelled";
   pages_done: number;
   decks_found: number;
+  api_count: number | null;
   error: string | null;
   started_at: string | null;
   finished_at: string | null;
@@ -225,7 +227,7 @@ export function listJobs(): JobRow[] {
 
 export function updateJob(
   id: number,
-  fields: Partial<Pick<JobRow, "status" | "pages_done" | "decks_found" | "error" | "started_at" | "finished_at">>
+  fields: Partial<Pick<JobRow, "status" | "pages_done" | "decks_found" | "api_count" | "error" | "started_at" | "finished_at">>
 ): void {
   // Build "SET a = @a, b = @b" from whichever fields were passed.
   // Column names come from our own code (the Partial<> type), never from

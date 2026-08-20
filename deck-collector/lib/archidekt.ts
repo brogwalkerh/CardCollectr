@@ -36,9 +36,13 @@ export interface DeckSummary {
  * pageSize param — every page contains 60 rows regardless. We still send
  * pageSize for politeness/future-proofing but never rely on it. */
 export interface DeckListResponse {
-  count: number;
+  count: number; // -1 when the server couldn't count (usually with `message`)
   next: string | null; // URL of the next page, null on the last page
   results: DeckSummary[];
+  /** Server-side soft errors arrive as HTTP 200 + this field, observed live:
+   *  "No card name `X` was found" and "canceling statement due to statement
+   *  timeout" (their card-name search is flaky). We surface it as a job error. */
+  message?: string;
 }
 
 /** Rows the list endpoint actually returns per page (observed, fixed). */
