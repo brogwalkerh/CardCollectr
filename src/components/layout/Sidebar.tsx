@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Search, Library, Layers, Heart, BarChart3, ArrowUpDown, Camera, Settings, Sun, Moon } from 'lucide-react';
+import { Search, Library, Layers, Heart, BarChart3, ArrowUpDown, Camera, Settings, Sun, Moon, FolderDown } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { path: '/decks', icon: Layers, label: 'Decks' },
   { path: '/wishlist', icon: Heart, label: 'Wishlist' },
   { path: '/stats', icon: BarChart3, label: 'Statistics' },
+  { path: '/archidekt', icon: FolderDown, label: 'Archidekt' },
   { path: '/import-export', icon: ArrowUpDown, label: 'Import/Export' },
   { path: '/scanner', icon: Camera, label: 'Scanner' },
   { path: '/settings', icon: Settings, label: 'Settings' },

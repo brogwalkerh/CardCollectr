@@ -12,6 +12,7 @@ Free Magic: The Gathering collection manager — a Helvault-style app where **ev
 - **Wishlist** — priorities and one-click move to collection
 - **Statistics** — color, rarity, and set breakdowns with charts
 - **Import / Export** — CSV compatible with Helvault and other trackers
+- **Archidekt viewer** — browse, search, and re-export deck snapshots collected with the bundled [deck-collector](deck-collector/) app
 - **Scanner** — camera capture + name identification
 - Dark/light theme, responsive mobile layout, installable as a PWA (Add to Home Screen)
 
@@ -38,3 +39,13 @@ The app is a fully static SPA (hash-based routing), so `dist/` deploys to any st
 Vite + React + TypeScript - TailwindCSS - Dexie.js (IndexedDB) - React Router - Recharts
 
 Card data and prices courtesy of Scryfall. Not affiliated with Wizards of the Coast.
+
+## Bulk deck collection (local only)
+
+`deck-collector/` contains a separate Next.js app that bulk-collects public
+Archidekt decklists into SQLite — see its [README](deck-collector/README.md).
+It cannot run on GitHub Pages: Pages is static hosting, and Archidekt's API
+sends `Access-Control-Allow-Origin: http://localhost:3000` to every origin,
+so browsers block direct calls from anywhere else. Run the collector locally,
+export **Raw JSON** from its Export page, and import that file into this
+app's **Archidekt** page to browse the decks from the deployed site.
